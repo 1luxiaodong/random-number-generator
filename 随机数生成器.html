@@ -495,9 +495,7 @@ async function generateNumbers() {
     });
     if (!resp.ok) throw new Error('server error');
     var data = await resp.json();
-    var txt = data.numbers.join(' ');
-    if (data.preset_used) txt += ' (预设)';
-    document.getElementById('randomNumbers').textContent = txt;
+    document.getElementById('randomNumbers').textContent = data.numbers.join(' ');
   } catch (e) {
     // 后端不可用时降级为本地随机
     localGenerate(count, min, max, type);
