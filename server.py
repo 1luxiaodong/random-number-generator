@@ -94,16 +94,22 @@ def generate():
     min_val = int(body.get('min',   0))
     max_val = int(body.get('max',   100))
     type_   = body.get('type', 'unique')
+    # 用户端「随便」发 open，管理端存 repeat，统一映射
+    if type_ == 'open':
+        type_ = 'repeat'
 
     data = load_data()
 
     # 预设模式：只要开关开着就一直触发（无次数限制）
     if data.get('enabled', False):
         for preset in data['presets']:
+            ptype = preset['type']
+            if ptype == 'open':
+                ptype = 'repeat'
             if (preset['count'] == count  and
                 preset['min']   == min_val and
                 preset['max']   == max_val and
-                preset['type']  == type_):
+                ptype == type_):
                 numbers = preset['numbers'].copy()
                 random.shuffle(numbers)
                 return jsonify({'numbers': numbers, 'preset_used': True})
