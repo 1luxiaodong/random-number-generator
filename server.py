@@ -12,6 +12,7 @@ app.secret_key = 'rng-admin-xK9mP2vL-2026'
 ADMIN_PASSWORD = 'qazwsxedc'
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, 'presets.json')
+DEFAULT_DATA = {"enabled": False, "presets": []}
 
 try:
     from replit import db as replit_db
@@ -20,28 +21,43 @@ except ImportError:
     USE_REPLIT_DB = False
 
 
+def normalize_data(data):
+    if not isinstance(data, dict):
+        return dict(DEFAULT_DATA)
+    enabled = bool(data.get('enabled', False))
+    presets = data.get('presets', [])
+    if not isinstance(presets, list):
+        presets = []
+    return {'enabled': enabled, 'presets': presets}
+
+
 def load_data():
     if USE_REPLIT_DB:
         try:
             raw = replit_db.get('rng_data')
-            return json.loads(raw) if raw else {"enabled": False, "presets": []}
+            if raw:
+                return normalize_data(json.loads(raw))
         except Exception:
-            return {"enabled": False, "presets": []}
+            pass
     if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {"enabled": False, "presets": []}
+        try:
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                return normalize_data(json.load(f))
+        except Exception:
+            pass
+    return dict(DEFAULT_DATA)
 
 
 def save_data(data):
+    normalized = normalize_data(data)
     if USE_REPLIT_DB:
         try:
-            replit_db['rng_data'] = json.dumps(data, ensure_ascii=False)
+            replit_db['rng_data'] = json.dumps(normalized, ensure_ascii=False)
+            return
         except Exception:
             pass
-        return
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(normalized, f, ensure_ascii=False, indent=2)
 
 
 # ── 权限装饰器 ─────────────────────────────────────────
@@ -89,7 +105,7 @@ def admin():
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
-    body    = request.get_json()
+    body    = request.get_json(silent=True) or {}
     count   = int(body.get('count', 10))
     min_val = int(body.get('min',   0))
     max_val = int(body.get('max',   100))
@@ -149,7 +165,7 @@ def get_presets():
 @app.route('/api/presets', methods=['POST'])
 @admin_required
 def add_preset():
-    body    = request.get_json()
+    body    = request.get_json(silent=True) or {}
     raw     = body.get('numbers', [])
     numbers = [int(x) for x in raw] if isinstance(raw, list) \
               else [int(x.strip()) for x in raw.split(',') if x.strip()]
