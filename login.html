@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>管理后台 · 登录</title>
+<link rel="shortcut icon" href="/www.kexuejisuanqi.com-icon.ico" type="image/x-icon">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"微软雅黑",sans-serif;
+  background:linear-gradient(135deg,#6b3a1f 0%,#c0844d 100%);
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+}
+.card{
+  background:#fff;border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+  padding:44px 40px 36px;width:360px;
+}
+.logo{text-align:center;margin-bottom:24px}
+.logo img{height:48px;object-fit:contain}
+h2{text-align:center;font-size:18px;color:#7c4328;font-weight:600;margin-bottom:28px}
+label{display:block;font-size:13px;color:#7c4328;font-weight:bold;margin-bottom:6px}
+input[type=password]{
+  width:100%;padding:10px 14px;border:1px solid #d0ad9a;
+  border-radius:6px;font-size:15px;font-family:inherit;
+  transition:border-color .2s,box-shadow .2s;
+}
+input[type=password]:focus{
+  outline:none;border-color:#a4672e;
+  box-shadow:0 0 0 3px rgba(164,103,46,.15);
+}
+.btn{
+  width:100%;margin-top:20px;padding:12px;
+  background:#a4672e;color:#fff;border:none;border-radius:6px;
+  font-size:16px;font-family:inherit;cursor:pointer;
+  transition:background .2s;letter-spacing:2px;
+}
+.btn:hover{background:#7c4328}
+.btn:active{transform:scale(.98)}
+.err{color:#e53935;font-size:13px;text-align:center;margin-top:12px;min-height:18px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <img src="/logo (1).png" alt="logo" onerror="this.style.display='none'">
+  </div>
+  <h2>后台管理 · 登录</h2>
+  <label for="pwd">管理密码</label>
+  <input type="password" id="pwd" placeholder="请输入管理密码" autofocus
+         onkeydown="if(event.key==='Enter')login()">
+  <button class="btn" onclick="login()">登 录</button>
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+async function login(){
+  const pwd=document.getElementById('pwd').value.trim();
+  const err=document.getElementById('err');
+  if(!pwd){err.textContent='请输入密码';return;}
+  err.textContent='';
+  try{
+    const r=await fetch('/admin/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({password:pwd})
+    });
+    const d=await r.json();
+    if(d.success){
+      window.location.href='/admin';
+    }else{
+      err.textContent='密码错误，请重试';
+      document.getElementById('pwd').value='';
+      document.getElementById('pwd').focus();
+    }
+  }catch(e){
+    err.textContent='网络异常，请重试';
+  }
+}
+</script>
+</body>
+</html>

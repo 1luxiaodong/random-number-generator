@@ -2,479 +2,427 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>随机数生成器 · 后台管理</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>随机数管理后台</title>
+<link rel="shortcut icon" href="/www.kexuejisuanqi.com-icon.ico" type="image/x-icon">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "微软雅黑", sans-serif; font-size: 14px; background: #f0f2f5; color: #333; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"微软雅黑",sans-serif;background:#f5ede4;min-height:100vh;color:#333}
 
 /* ── 顶栏 ── */
-.topbar {
-  background: #7c4328;
-  color: #fff;
-  padding: 0 32px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+.topbar{
+  background:#7c4328;color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:52px;
 }
-.topbar h1 { font-size: 18px; font-weight: normal; letter-spacing: 1px; }
-.topbar a  { color: #f2d2b5; font-size: 13px; text-decoration: none; }
-.topbar a:hover { color: #fff; }
+.topbar .title{font-size:17px;font-weight:bold;letter-spacing:1px}
+.topbar .logout{
+  font-size:13px;color:rgba(255,255,255,.75);cursor:pointer;
+  text-decoration:none;padding:5px 12px;border:1px solid rgba(255,255,255,.35);
+  border-radius:4px;transition:.2s;
+}
+.topbar .logout:hover{background:rgba(255,255,255,.15);color:#fff}
 
-/* ── 布局 ── */
-.page { max-width: 960px; margin: 28px auto; padding: 0 16px; }
+/* ── 容器 ── */
+.wrap{max-width:760px;margin:28px auto;padding:0 16px}
 
 /* ── 卡片 ── */
-.card {
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-  overflow: hidden;
+.card{
+  background:#fff;border-radius:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+  padding:24px 28px;margin-bottom:20px;
 }
-.card-head {
-  background: #fffcf5;
-  border-bottom: 1px solid #f0e0c8;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-weight: bold;
-  color: #7c4328;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.card-title{
+  font-size:15px;font-weight:bold;color:#7c4328;
+  margin-bottom:18px;padding-bottom:10px;
+  border-bottom:1px solid #ede3db;
 }
-.card-body { padding: 20px; }
 
-/* ── 状态开关 ── */
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+/* ── 开关 ── */
+.switch-row{display:flex;align-items:center;gap:16px}
+.switch{position:relative;display:inline-block;width:52px;height:28px}
+.switch input{opacity:0;width:0;height:0}
+.slider{
+  position:absolute;inset:0;background:#ccc;border-radius:28px;
+  cursor:pointer;transition:.3s;
 }
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 15px;
-  font-weight: bold;
+.slider:before{
+  content:"";position:absolute;width:22px;height:22px;
+  left:3px;bottom:3px;background:#fff;border-radius:50%;
+  transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);
 }
-.status-badge.on  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
-.status-badge.off { background: #fafafa; color: #888;     border: 1px solid #ddd; }
-.status-badge .dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  display: inline-block;
+input:checked+.slider{background:#a4672e}
+input:checked+.slider:before{transform:translateX(24px)}
+.switch-label{font-size:14px;color:#555}
+#status-tag{
+  font-size:12px;padding:3px 10px;border-radius:12px;font-weight:bold;
 }
-.status-badge.on  .dot { background: #43a047; }
-.status-badge.off .dot { background: #bbb; }
-
-.btn {
-  padding: 7px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-family: inherit;
-  transition: background .2s;
-}
-.btn-primary   { background: #a4672e; color: #fff; }
-.btn-primary:hover { background: #7c4328; }
-.btn-success   { background: #43a047; color: #fff; }
-.btn-success:hover { background: #2e7d32; }
-.btn-danger    { background: #e53935; color: #fff; font-size: 12px; padding: 4px 12px; }
-.btn-danger:hover  { background: #b71c1c; }
-.btn-warning   { background: #fb8c00; color: #fff; font-size: 12px; padding: 4px 12px; }
-.btn-warning:hover { background: #e65100; }
-.btn-sm        { padding: 4px 10px; font-size: 12px; }
+.tag-on{background:#fff3e0;color:#a4672e}
+.tag-off{background:#eee;color:#999}
 
 /* ── 表单 ── */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px 20px;
+.form-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:#7c4328;font-weight:bold}
+.field input,.field select{
+  padding:8px 10px;border:1px solid #d0ad9a;border-radius:5px;
+  font-size:14px;font-family:inherit;width:100%;
 }
-.form-full { grid-column: 1 / -1; }
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #7c4328;
-  font-weight: bold;
-  font-size: 13px;
+.field input:focus,.field select:focus{
+  outline:none;border-color:#a4672e;
+  box-shadow:0 0 0 2px rgba(164,103,46,.15);
 }
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 7px 10px;
-  border: 1px solid #d0ad9a;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  background: #fff;
-  transition: border-color .2s;
+.f-sm{width:90px}
+.f-md{width:110px}
+.f-lg{width:140px}
+
+/* ── 模板按钮 ── */
+.tpl-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.tpl-row span{font-size:12px;color:#7c4328;font-weight:bold;margin-right:4px}
+.tpl-btn{
+  width:36px;height:36px;border-radius:6px;
+  border:2px solid #d0ad9a;background:#fff;
+  font-size:15px;font-weight:bold;color:#7c4328;
+  cursor:pointer;transition:.15s;
+  display:flex;align-items:center;justify-content:center;
 }
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #a4672e;
-  box-shadow: 0 0 0 2px rgba(164,103,46,0.15);
+.tpl-btn:hover{border-color:#a4672e;background:#fff8f3}
+.tpl-btn.active{background:#a4672e;border-color:#a4672e;color:#fff}
+
+/* ── 数字格子 ── */
+.num-boxes{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;min-height:52px;align-items:center}
+.num-box{
+  width:58px;height:50px;text-align:center;padding:0;
+  border:2px solid #d0ad9a;border-radius:8px;
+  font-size:18px;font-weight:bold;color:#7c4328;font-family:inherit;
+  transition:.15s;
 }
-.form-group textarea { resize: vertical; min-height: 60px; }
-.form-hint { font-size: 12px; color: #999; margin-top: 4px; }
-.form-actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; }
-#form-error { color: #e53935; font-size: 13px; }
-#form-success { color: #43a047; font-size: 13px; }
+.num-box:focus{outline:none;border-color:#a4672e;box-shadow:0 0 0 2px rgba(164,103,46,.15)}
+.num-box::placeholder{font-size:13px;font-weight:normal;color:#ccc}
+
+/* ── 按钮 ── */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  padding:9px 22px;border:none;border-radius:6px;
+  font-size:14px;font-family:inherit;cursor:pointer;transition:.2s;
+}
+.btn-primary{background:#a4672e;color:#fff}
+.btn-primary:hover{background:#7c4328}
+.btn-secondary{background:#f0e8e0;color:#7c4328;border:1px solid #d0ad9a}
+.btn-secondary:hover{background:#e5d6c9}
+.btn-danger{background:#fff;color:#e53935;border:1px solid #e53935;padding:5px 12px;font-size:13px;border-radius:4px}
+.btn-danger:hover{background:#ffeaea}
+
+/* ── 结果提示 ── */
+#form-msg{margin-top:12px;font-size:13px;min-height:18px}
+.msg-ok{color:#2e7d32}.msg-err{color:#e53935}
 
 /* ── 预设列表 ── */
-.preset-list { display: flex; flex-direction: column; gap: 12px; }
-.preset-item {
-  border: 1px solid #e8d5c0;
-  border-radius: 5px;
-  padding: 14px 16px;
-  background: #fffcf5;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
+.list-toggle{
+  font-size:13px;color:#a4672e;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 12px;border:1px solid #d0ad9a;border-radius:5px;
+  background:#fff8f3;transition:.15s;user-select:none;
 }
-.preset-item:hover { border-color: #c0844d; }
-.preset-info { flex: 1; }
-.preset-cond {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 6px;
-}
-.preset-cond span {
-  display: inline-block;
-  background: #fff3e0;
-  border: 1px solid #ffcc80;
-  border-radius: 3px;
-  padding: 1px 8px;
-  margin: 2px 3px;
-  font-size: 12px;
-  color: #7c4328;
-}
-.preset-numbers {
-  font-family: monospace;
-  font-size: 14px;
-  color: #1a4fa0;
-  background: #e8f0fe;
-  border-radius: 4px;
-  padding: 4px 10px;
-  margin-bottom: 8px;
-  word-break: break-all;
-}
-.preset-uses {
-  font-size: 13px;
-  color: #555;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.uses-bar {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.uses-count {
-  display: inline-block;
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #a5d6a7;
-  border-radius: 10px;
-  padding: 1px 10px;
-  font-weight: bold;
-}
-.uses-count.zero { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-.preset-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.list-toggle:hover{background:#f0e0d0}
+#preset-list{display:none;margin-top:16px}
 
-/* 编辑剩余次数 */
-.edit-uses { display: flex; gap: 6px; align-items: center; }
-.edit-uses input {
-  width: 60px; padding: 3px 6px; border: 1px solid #d0ad9a;
-  border-radius: 3px; font-size: 13px; text-align: center;
+.preset-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-radius:7px;margin-bottom:8px;
+  background:#faf6f2;border:1px solid #ede3db;
+  font-size:13px;
+}
+.preset-meta{flex:1;color:#555;line-height:1.6}
+.preset-meta strong{color:#7c4328;font-size:14px}
+.preset-nums{
+  display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;
+}
+.num-tag{
+  background:#fff3e0;color:#a4672e;
+  padding:2px 10px;border-radius:12px;
+  font-weight:bold;font-size:14px;
 }
 
-.empty-tip { text-align: center; color: #aaa; padding: 30px 0; font-size: 14px; }
-
-/* ── toast ── */
-#toast {
-  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.75); color: #fff;
-  padding: 10px 24px; border-radius: 20px;
-  font-size: 14px; pointer-events: none;
-  opacity: 0; transition: opacity .3s;
-  z-index: 9999;
-}
-#toast.show { opacity: 1; }
+.empty-tip{color:#bbb;font-size:13px;text-align:center;padding:20px 0}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>⚙ 随机数生成器 · 后台管理</h1>
-  <a href="/" target="_blank">↗ 前台页面</a>
+  <span class="title">随机数生成 · 管理后台</span>
+  <a class="logout" href="/admin/logout">退出登录</a>
 </div>
 
-<div class="page">
+<div class="wrap">
 
-  <!-- 状态卡片 -->
+  <!-- ── 开关卡片 ── -->
   <div class="card">
-    <div class="card-head">🔌 预设模式开关</div>
-    <div class="card-body">
-      <div class="status-row">
-        <div id="status-badge" class="status-badge off">
-          <span class="dot"></span>
-          <span id="status-text">加载中…</span>
-        </div>
-        <button class="btn btn-primary" onclick="toggleMode()">切换模式</button>
-        <span style="font-size:13px;color:#888;">
-          <b>关闭</b>：每次生成真随机数 &nbsp;|&nbsp;
-          <b>开启</b>：满足条件时使用预设数字（顺序随机打乱）
-        </span>
-      </div>
+    <div class="card-title">预设模式开关</div>
+    <div class="switch-row">
+      <label class="switch">
+        <input type="checkbox" id="toggle-cb" onchange="toggleMode()">
+        <span class="slider"></span>
+      </label>
+      <span class="switch-label">预设模式</span>
+      <span id="status-tag" class="tag-off">已关闭</span>
     </div>
+    <p style="font-size:12px;color:#999;margin-top:12px">
+      开启后：满足条件的请求将返回预设数字（随机打乱顺序），无次数限制，一直生效。<br>
+      关闭后：所有请求返回真正的随机数。
+    </p>
   </div>
 
-  <!-- 添加预设 -->
+  <!-- ── 添加预设卡片 ── -->
   <div class="card">
-    <div class="card-head">➕ 添加预设</div>
-    <div class="card-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>数目（count）</label>
-          <input type="number" id="f-count" min="1" value="10" placeholder="例：10">
-        </div>
-        <div class="form-group">
-          <label>最小值（min）</label>
-          <input type="number" id="f-min" value="0" placeholder="例：0">
-        </div>
-        <div class="form-group">
-          <label>最大值（max）</label>
-          <input type="number" id="f-max" value="100" placeholder="例：100">
-        </div>
-        <div class="form-group">
-          <label>类型</label>
-          <select id="f-type">
-            <option value="unique">唯一（不重复）</option>
-            <option value="open">随便（可重复）</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>生效次数</label>
-          <input type="number" id="f-uses" min="1" value="5" placeholder="例：5">
-        </div>
-        <div class="form-group form-full">
-          <label>预设数字（逗号分隔，个数须与数目一致）</label>
-          <textarea id="f-numbers" placeholder="例：5, 23, 47, 12, 88, 3, 65, 42, 19, 71"></textarea>
-          <div class="form-hint">共 <b id="num-count">0</b> 个数字 &nbsp;·&nbsp; 点击「随机填入」可快速生成一组样例</div>
-        </div>
+    <div class="card-title">添加预设</div>
+
+    <!-- 模板选择 -->
+    <div class="tpl-row">
+      <span>数目模板：</span>
+      <button class="tpl-btn" id="tpl-1" onclick="setTemplate(1)">1</button>
+      <button class="tpl-btn" id="tpl-2" onclick="setTemplate(2)">2</button>
+      <button class="tpl-btn" id="tpl-3" onclick="setTemplate(3)">3</button>
+      <button class="tpl-btn" id="tpl-4" onclick="setTemplate(4)">4</button>
+      <button class="tpl-btn active" id="tpl-5" onclick="setTemplate(5)">5</button>
+      <button class="tpl-btn" id="tpl-6" onclick="setTemplate(6)">6</button>
+      <button class="tpl-btn" id="tpl-7" onclick="setTemplate(7)">7</button>
+    </div>
+
+    <!-- 数字格子 -->
+    <div id="num-boxes" class="num-boxes"></div>
+
+    <!-- 最小值 / 最大值 / 类型 -->
+    <div class="form-row">
+      <div class="field">
+        <label>最小值</label>
+        <input type="number" id="f-min" class="f-sm" value="1">
       </div>
-      <div class="form-actions">
-        <button class="btn btn-primary" onclick="addPreset()">保存预设</button>
-        <button class="btn" style="background:#f5f5f5;border:1px solid #ddd;" onclick="fillRandom()">随机填入</button>
-        <span id="form-error"></span>
-        <span id="form-success"></span>
+      <div class="field">
+        <label>最大值</label>
+        <input type="number" id="f-max" class="f-sm" value="99">
+      </div>
+      <div class="field">
+        <label>类型</label>
+        <select id="f-type" class="f-md">
+          <option value="unique">唯一（不重复）</option>
+          <option value="repeat">可重复</option>
+        </select>
       </div>
     </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addPreset()">保 存</button>
+      <button class="btn btn-secondary" onclick="fillRandom()">随机填入</button>
+      <button class="btn btn-secondary" onclick="clearBoxes()">清 空</button>
+    </div>
+
+    <div id="form-msg"></div>
   </div>
 
-  <!-- 预设列表 -->
+  <!-- ── 预设列表卡片 ── -->
   <div class="card">
-    <div class="card-head">
-      📋 预设列表
-      <span style="font-size:13px;font-weight:normal;color:#999;margin-left:8px;">
-        剩余次数为 0 时该预设不再生效
-      </span>
+    <div class="card-title">预设列表</div>
+    <div class="list-toggle" onclick="toggleList()" id="list-btn">
+      <span id="list-btn-text">▶ 展开列表</span>
     </div>
-    <div class="card-body">
-      <div class="preset-list" id="preset-list">
-        <div class="empty-tip">加载中…</div>
-      </div>
+    <div id="preset-list">
+      <div id="list-inner"></div>
     </div>
   </div>
 
 </div>
-
-<div id="toast"></div>
 
 <script>
-const API = '';  // 同源，相对路径即可
+// ── 全局状态 ─────────────────────────────────────────
+let currentCount = 5;
 
-// ── 工具 ──────────────────────────────────────────
+// ── 初始化 ───────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setTemplate(5);
+  loadStatus();
+});
 
-function toast(msg, duration = 2200) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
-}
-
-// ── 状态 ──────────────────────────────────────────
-
+// ── 开关 ─────────────────────────────────────────────
 async function loadStatus() {
-  const res  = await fetch(API + '/api/status');
-  const data = await res.json();
-  renderStatus(data.enabled);
-  renderPresets(data.presets);
-}
-
-function renderStatus(enabled) {
-  const badge = document.getElementById('status-badge');
-  const text  = document.getElementById('status-text');
-  badge.className = 'status-badge ' + (enabled ? 'on' : 'off');
-  text.textContent = enabled ? '预设模式  已开启' : '预设模式  已关闭';
+  try {
+    const r = await fetch('/api/status', {credentials: 'include'});
+    if (r.status === 401) { location.href = '/admin/login'; return; }
+    const d = await r.json();
+    document.getElementById('toggle-cb').checked = d.enabled;
+    updateTag(d.enabled);
+  } catch(e) {}
 }
 
 async function toggleMode() {
-  const res  = await fetch(API + '/api/toggle', { method: 'POST' });
-  const data = await res.json();
-  renderStatus(data.enabled);
-  toast(data.enabled ? '✅ 预设模式已开启' : '⛔ 已切换为真随机模式');
+  const r = await fetch('/api/toggle', {method: 'POST', credentials: 'include'});
+  if (r.status === 401) { location.href = '/admin/login'; return; }
+  const d = await r.json();
+  document.getElementById('toggle-cb').checked = d.enabled;
+  updateTag(d.enabled);
 }
 
-// ── 预设列表 ──────────────────────────────────────
+function updateTag(on) {
+  const t = document.getElementById('status-tag');
+  if (on) { t.textContent = '已开启'; t.className = 'tag-on'; }
+  else     { t.textContent = '已关闭'; t.className = 'tag-off'; }
+}
 
-function renderPresets(presets) {
-  const el = document.getElementById('preset-list');
-  if (!presets || presets.length === 0) {
-    el.innerHTML = '<div class="empty-tip">暂无预设，请在上方添加</div>';
-    return;
+// ── 模板选择 ─────────────────────────────────────────
+function setTemplate(n) {
+  currentCount = n;
+  for (let i = 1; i <= 7; i++) {
+    document.getElementById('tpl-' + i).classList.toggle('active', i === n);
   }
-  el.innerHTML = presets.map(p => {
-    const typeLabel  = p.type === 'unique' ? '唯一' : '随便';
-    const usesClass  = p.remaining_uses === 0 ? 'uses-count zero' : 'uses-count';
-    return `
-    <div class="preset-item" id="preset-${p.id}">
-      <div class="preset-info">
-        <div class="preset-cond">
-          <span>数目 = ${p.count}</span>
-          <span>最小值 = ${p.min}</span>
-          <span>最大值 = ${p.max}</span>
-          <span>类型 = ${typeLabel}</span>
-          <span style="background:#f3e5f5;border-color:#ce93d8;color:#6a1b9a;">创建于 ${p.created_at}</span>
-        </div>
-        <div class="preset-numbers">[ ${p.numbers.join(', ')} ]</div>
-        <div class="preset-uses">
-          剩余次数：<span class="${usesClass}">${p.remaining_uses}</span>
-          &nbsp;/&nbsp; 总次数：${p.total_uses}
-          &nbsp;&nbsp;
-          <div class="edit-uses">
-            <input type="number" min="0" value="${p.remaining_uses}" id="uses-input-${p.id}" style="width:60px">
-            <button class="btn btn-warning btn-sm" onclick="updateUses('${p.id}')">更新次数</button>
-            <button class="btn btn-success btn-sm" onclick="resetUses('${p.id}', ${p.total_uses})">恢复初始(${p.total_uses})</button>
-          </div>
-        </div>
-      </div>
-      <div class="preset-actions">
-        <button class="btn btn-danger" onclick="deletePreset('${p.id}')">🗑 删除</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── 添加预设 ──────────────────────────────────────
-
-document.getElementById('f-numbers').addEventListener('input', function() {
-  const nums = this.value.split(',').filter(s => s.trim() !== '');
-  document.getElementById('num-count').textContent = nums.length;
-});
-
-async function addPreset() {
-  const errEl = document.getElementById('form-error');
-  const okEl  = document.getElementById('form-success');
-  errEl.textContent = '';
-  okEl.textContent  = '';
-
-  const payload = {
-    count:   document.getElementById('f-count').value,
-    min:     document.getElementById('f-min').value,
-    max:     document.getElementById('f-max').value,
-    type:    document.getElementById('f-type').value,
-    uses:    document.getElementById('f-uses').value,
-    numbers: document.getElementById('f-numbers').value
-  };
-
-  const res  = await fetch(API + '/api/presets', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-
-  if (!res.ok) {
-    errEl.textContent = '❌ ' + (data.error || '保存失败');
-    return;
+  const container = document.getElementById('num-boxes');
+  container.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'num-box';
+    inp.id = 'nb-' + i;
+    inp.placeholder = i + 1;
+    container.appendChild(inp);
   }
-
-  okEl.textContent = '✅ 预设已保存';
-  document.getElementById('f-numbers').value = '';
-  document.getElementById('num-count').textContent = '0';
-  toast('预设已添加');
-  loadStatus();
+  document.getElementById('form-msg').textContent = '';
 }
 
+// ── 随机填入 ─────────────────────────────────────────
 function fillRandom() {
-  const count   = parseInt(document.getElementById('f-count').value) || 10;
-  const min_val = parseInt(document.getElementById('f-min').value)   || 0;
-  const max_val = parseInt(document.getElementById('f-max').value)   || 100;
-  const type    = document.getElementById('f-type').value;
-
-  let nums = [];
+  const min = parseInt(document.getElementById('f-min').value);
+  const max = parseInt(document.getElementById('f-max').value);
+  const type = document.getElementById('f-type').value;
+  if (isNaN(min) || isNaN(max) || min > max) {
+    showMsg('请先设置合法的最小值和最大值', false); return;
+  }
+  let nums;
   if (type === 'unique') {
     const pool = [];
-    for (let i = min_val; i <= max_val; i++) pool.push(i);
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    nums = pool.slice(0, count);
+    for (let i = min; i <= max; i++) pool.push(i);
+    shuffle(pool);
+    nums = pool.slice(0, currentCount);
   } else {
-    for (let i = 0; i < count; i++)
-      nums.push(Math.floor(Math.random() * (max_val - min_val + 1)) + min_val);
+    nums = Array.from({length: currentCount}, () => randInt(min, max));
   }
-
-  document.getElementById('f-numbers').value = nums.join(', ');
-  document.getElementById('num-count').textContent = nums.length;
+  nums.forEach((n, i) => {
+    const el = document.getElementById('nb-' + i);
+    if (el) el.value = n;
+  });
 }
 
-// ── 预设操作 ──────────────────────────────────────
+function clearBoxes() {
+  for (let i = 0; i < currentCount; i++) {
+    const el = document.getElementById('nb-' + i);
+    if (el) el.value = '';
+  }
+  document.getElementById('form-msg').textContent = '';
+}
+
+// ── 保存预设 ─────────────────────────────────────────
+async function addPreset() {
+  const numbers = [];
+  for (let i = 0; i < currentCount; i++) {
+    const el = document.getElementById('nb-' + i);
+    const v = el ? el.value.trim() : '';
+    if (v === '') { showMsg(`第 ${i+1} 个数字未填写`, false); return; }
+    numbers.push(parseInt(v));
+  }
+  const body = {
+    count:   currentCount,
+    min:     parseInt(document.getElementById('f-min').value),
+    max:     parseInt(document.getElementById('f-max').value),
+    type:    document.getElementById('f-type').value,
+    numbers: numbers
+  };
+  try {
+    const r = await fetch('/api/presets', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify(body)
+    });
+    if (r.status === 401) { location.href = '/admin/login'; return; }
+    const d = await r.json();
+    if (!r.ok) { showMsg(d.error || '保存失败', false); return; }
+    showMsg('预设已保存 ✓', true);
+    clearBoxes();
+    // 若列表是展开状态则刷新
+    if (document.getElementById('preset-list').style.display !== 'none') {
+      loadPresets();
+    }
+  } catch(e) { showMsg('网络异常', false); }
+}
+
+// ── 预设列表 ─────────────────────────────────────────
+function toggleList() {
+  const list = document.getElementById('preset-list');
+  const open = list.style.display !== 'none';
+  if (open) {
+    list.style.display = 'none';
+    document.getElementById('list-btn-text').textContent = '▶ 展开列表';
+  } else {
+    list.style.display = 'block';
+    document.getElementById('list-btn-text').textContent = '▼ 收起列表';
+    loadPresets();
+  }
+}
+
+async function loadPresets() {
+  const inner = document.getElementById('list-inner');
+  inner.innerHTML = '<div style="color:#bbb;font-size:13px;padding:10px 0">加载中...</div>';
+  try {
+    const r = await fetch('/api/presets', {credentials: 'include'});
+    if (r.status === 401) { location.href = '/admin/login'; return; }
+    const list = await r.json();
+    renderPresets(list);
+  } catch(e) {
+    inner.innerHTML = '<div class="empty-tip">加载失败</div>';
+  }
+}
+
+function renderPresets(list) {
+  const inner = document.getElementById('list-inner');
+  if (!list.length) {
+    inner.innerHTML = '<div class="empty-tip">暂无预设</div>';
+    return;
+  }
+  const typeLabel = { unique: '唯一', repeat: '可重复' };
+  inner.innerHTML = list.map(p => `
+    <div class="preset-item" id="pi-${p.id}">
+      <div class="preset-meta">
+        <strong>数目 ${p.count}｜范围 [${p.min}, ${p.max}]｜${typeLabel[p.type]||p.type}</strong>
+        <div class="preset-nums">
+          ${p.numbers.map(n=>`<span class="num-tag">${n}</span>`).join('')}
+        </div>
+        <div style="color:#bbb;font-size:12px;margin-top:4px">${p.created_at}</div>
+      </div>
+      <button class="btn-danger" onclick="deletePreset('${p.id}')">删除</button>
+    </div>
+  `).join('');
+}
 
 async function deletePreset(id) {
-  if (!confirm('确认删除这条预设？')) return;
-  await fetch(API + '/api/presets/' + id, { method: 'DELETE' });
-  document.getElementById('preset-' + id)?.remove();
-  toast('已删除');
-  // 检查是否为空
-  if (!document.querySelector('.preset-item'))
-    document.getElementById('preset-list').innerHTML = '<div class="empty-tip">暂无预设，请在上方添加</div>';
+  if (!confirm('确定删除这条预设？')) return;
+  const r = await fetch('/api/presets/' + id, {method:'DELETE', credentials:'include'});
+  if (r.status === 401) { location.href = '/admin/login'; return; }
+  document.getElementById('pi-' + id)?.remove();
+  const inner = document.getElementById('list-inner');
+  if (!inner.children.length) inner.innerHTML = '<div class="empty-tip">暂无预设</div>';
 }
 
-async function resetUses(id, total) {
-  const res  = await fetch(API + '/api/presets/' + id + '/reset', { method: 'POST' });
-  const data = await res.json();
-  toast(`次数已恢复为 ${total}`);
-  loadStatus();
+// ── 工具函数 ─────────────────────────────────────────
+function showMsg(msg, ok) {
+  const el = document.getElementById('form-msg');
+  el.textContent = msg;
+  el.className = ok ? 'msg-ok' : 'msg-err';
 }
-
-async function updateUses(id) {
-  const val = parseInt(document.getElementById('uses-input-' + id).value);
-  if (isNaN(val) || val < 0) { toast('请输入有效次数'); return; }
-  const res  = await fetch(API + '/api/presets/' + id + '/uses', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uses: val })
-  });
-  toast('次数已更新');
-  loadStatus();
+function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
 }
-
-// ── 初始化 ────────────────────────────────────────
-
-loadStatus();
 </script>
 </body>
 </html>
