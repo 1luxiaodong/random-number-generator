@@ -491,8 +491,7 @@ async function generateNumbers() {
     var resp = await fetch('/api/generate', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ count: count, min: min, max: max, type: type }),
-      signal:  AbortSignal.timeout(3000)   // 3 秒超时
+      body:    JSON.stringify({ count: count, min: min, max: max, type: type })
     });
     if (!resp.ok) throw new Error('server error');
     var data = await resp.json();

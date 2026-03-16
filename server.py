@@ -13,16 +13,33 @@ ADMIN_PASSWORD = 'qazwsxedc'
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, 'presets.json')
 
+try:
+    from replit import db as replit_db
+    USE_REPLIT_DB = True
+except ImportError:
+    USE_REPLIT_DB = False
 
-# ── 数据读写 ───────────────────────────────────────────
 
 def load_data():
+    if USE_REPLIT_DB:
+        try:
+            raw = replit_db.get('rng_data')
+            return json.loads(raw) if raw else {"enabled": False, "presets": []}
+        except Exception:
+            return {"enabled": False, "presets": []}
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     return {"enabled": False, "presets": []}
 
+
 def save_data(data):
+    if USE_REPLIT_DB:
+        try:
+            replit_db['rng_data'] = json.dumps(data, ensure_ascii=False)
+        except Exception:
+            pass
+        return
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -67,12 +84,8 @@ def admin_logout():
 def admin():
     return send_from_directory(BASE_DIR, 'admin.html')
 
-@app.route('/<path:filename>')
-def serve_static(filename):
-    return send_from_directory(BASE_DIR, filename)
 
-
-# ── 生成数字（公开，前台调用）─────────────────────────
+# ── API 路由（必须放在 /<path> 之前，否则会被静态路由拦截）──
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
@@ -161,6 +174,10 @@ def add_preset():
         'numbers':    numbers,
         'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
+    # 同类别覆盖：相同 (count, min, max, type) 只保留一条
+    key = (count, min_val, max_val, type_)
+    data['presets'] = [p for p in data['presets']
+                       if (p['count'], p['min'], p['max'], p['type']) != key]
     data['presets'].append(preset)
     save_data(data)
     return jsonify(preset), 201
@@ -172,6 +189,11 @@ def delete_preset(pid):
     data['presets'] = [p for p in data['presets'] if p['id'] != pid]
     save_data(data)
     return jsonify({'success': True})
+
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(BASE_DIR, filename)
 
 
 if __name__ == '__main__':
