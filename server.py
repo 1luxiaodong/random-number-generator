@@ -220,7 +220,7 @@ def serve_static(filename):
 
 if __name__ == '__main__':
     port  = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV') != 'production'
+    debug = os.environ.get('DEBUG', '').lower() in ('1', 'true', 'yes')
     print(f'前台: http://localhost:{port}/')
     print(f'后台: http://localhost:{port}/admin')
-    app.run(debug=debug, port=port, host='0.0.0.0')
+    app.run(debug=debug, port=port, host='0.0.0.0', use_reloader=False)
