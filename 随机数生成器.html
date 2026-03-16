@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>在线随机数生成器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ===== Reset ===== */
+html, body, p, input, img, div, span, ul, li, h2, h3, select {
+  margin: 0; padding: 0;
+}
+h2, h3 { font-weight: normal; }
+img { border: 0; vertical-align: top; }
+ul, li { list-style: none; }
+a { text-decoration: none; color: #333; }
+a:hover { text-decoration: underline; color: #fd5151; }
+:focus { outline: 0; }
+
+body {
+  font: 12px/1.5 宋体, Tahoma, sans-serif;
+  background-color: #F5F5F5;
+  overflow-y: scroll;
+}
+
+/* ===== 页面布局 ===== */
+.main { width: 990px; margin: 0 auto; }
+
+/* ===== 顶部 Header ===== */
+#header { background: #f6f6f6; }
+#logo {
+  width: 990px; height: 65px;
+  margin: 0 auto;
+  padding: 10px 0 0 0;
+}
+#logo img { height: 55px; }
+
+/* ===== 导航栏 ===== */
+.menu_xy {
+  width: 990px;
+  margin: 0 auto;
+  height: 31px;
+  border: 1px solid #7c4328;
+  border-bottom: 2px solid #7c4328;
+}
+.menu_xy_inner { position: relative; }
+.menu_xy ul {
+  background-color: #a4672e;
+  border: 1px solid #b27f4f;
+  border-left: none;
+  height: 29px;
+  display: flex;
+  justify-content: flex-start;
+  margin-left: -1px;
+  width: 100%;
+}
+.menu_xy li { margin: -2px 0 0; text-align: center; flex-shrink: 0; }
+.menu_xy li a {
+  color: #fff;
+  font-size: 14px;
+  display: block;
+  border-top: 1px solid #267dc4;
+  border-right: 1px solid #0F75C3;
+  border-left: 1px solid #0F75C3;
+  height: 31px;
+}
+.menu_xy li a span {
+  display: block;
+  padding: 0 6px;
+  height: 29px;
+  line-height: 29px;
+  border: 1px solid #b27f4f;
+  white-space: nowrap;
+}
+.menu_xy li a:hover span,
+.menu_xy .current span {
+  background-color: #895127;
+  border: none;
+  height: 31px;
+  line-height: 31px;
+  padding: 0 6px;
+  text-decoration: none;
+  color: #fff;
+}
+.menu_xy .current span { color: #F8F011; font-weight: bold; }
+
+/* ===== 内容区 ===== */
+.cont {
+  margin-top: 10px;
+  overflow: hidden;
+  zoom: 1;
+}
+.cont::after {
+  content: "."; display: block; height: 0; clear: both; visibility: hidden;
+}
+.col_left { float: left; width: 680px; }
+.col_right { float: right; width: 300px; }
+
+/* ===== 主工具框 mod_box_t1 ===== */
+.mod_box_t1 {
+  position: relative;
+  margin-bottom: 10px;
+  border: 1px solid #d0ad9a;
+  background-color: #fffcf5;
+  zoom: 1;
+}
+.mod_box_t1 .hd {
+  position: relative;
+  margin: 0 14px 9px;
+  height: 54px;
+  border-bottom: 1px dashed #f2d2b5;
+  overflow: hidden;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+.mod_box_t1 .bd {
+  position: relative;
+  z-index: 3;
+  padding: 0 12px 30px;
+  font-size: 14px;
+}
+
+/* ===== 工具函数区 fn_part ===== */
+.fn_sfz h2 {
+  color: #834B27;
+  font-size: 24px;
+  font-family: "微软雅黑", "黑体";
+}
+
+/* ===== 计算框 mod_box_t3 ===== */
+.mod_box_t3 {
+  position: relative;
+  border: 1px solid #d0ad9a;
+  background-color: #fdf5e6;
+  zoom: 1;
+}
+.mod_box_t3 .box_con {
+  padding: 0 20px 15px;
+  zoom: 1;
+}
+
+/* 角标装饰 */
+.flag_tl_t3, .flag_tr_t3, .flag_bl_t3, .flag_br_t3 {
+  position: absolute;
+  width: 22px; height: 22px;
+  overflow: hidden;
+  z-index: 4;
+  background-color: #d0ad9a;
+}
+.flag_tl_t3 { left: 5px; top: 4px; border-radius: 0 0 50% 0; }
+.flag_tr_t3 { right: 5px; top: 4px; border-radius: 0 0 0 50%; }
+.flag_bl_t3 { bottom: 4px; left: 5px; border-radius: 0 50% 0 0; }
+.flag_br_t3 { bottom: 4px; right: 5px; border-radius: 50% 0 0 0; }
+
+/* ===== 表单样式 ===== */
+.mathmod_form { margin: 0; padding: 20px 10px; }
+.mathmod_form input[type="text"] {
+  background: #ffffff;
+  border: 1px solid #d0ad9a;
+  font-size: 16px;
+  margin: 5px 2px;
+  padding: 4px;
+  width: auto;
+  text-align: left;
+}
+.mathmod_form input[type="text"]:focus,
+.mathmod_form select:focus {
+  background: #fff;
+  box-shadow: inset 7px 7px 5px -6px rgba(0,0,0,0.3);
+  border-color: #f07d7d;
+  outline: none;
+}
+.mathmod_form select {
+  border: 1px solid #d0ad9a;
+  color: #717070;
+  font-size: 16px;
+  margin: 5px 2px;
+  padding: 4px;
+}
+.mathmod_form input[type="button"] {
+  padding: 5px 20px;
+  border: 1px solid #CAAB96;
+  margin: 2px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: #813D20;
+  cursor: pointer;
+  background-color: #FDFAF3;
+  border-radius: 2px;
+}
+.mathmod_form input[type="button"]:hover {
+  border-color: #7C4328;
+  background-color: #A4672E;
+  color: #fff;
+}
+
+/* fn_box 背景（logo 显示在右上角） */
+.fn_box {
+  background-image: url("");
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+/* 结果区域 */
+#randomNumbers {
+  color: white;
+  width: 100%;
+  line-height: 36px;
+  font-size: 28px;
+  text-align: left;
+  background-color: #005295;
+  border-radius: 3px;
+  padding: 5px 10px;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+/* ===== 介绍区 intro_area ===== */
+.intro_area {
+  color: #8a4626;
+  line-height: 22px;
+  margin-top: 5px;
+  text-indent: 2em;
+  border: 1px solid #D0AD9A;
+  padding: 0 10px;
+}
+.intro_area p { padding-top: 8px; padding-bottom: 8px; }
+
+/* ===== 推荐区 spreadHotWords ===== */
+.spreadHotWords {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #fff6e4;
+  height: 50px;
+  border: 1px solid #d0ad9a;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+}
+.spreadHotWords a {
+  font-size: 13px;
+  color: #834b27;
+  margin-left: 6px;
+}
+.spreadHotWords a:hover { color: #fd5151; }
+.spreadHotWords::before {
+  content: "推荐";
+  font-size: 12px;
+  color: #fff;
+  background-color: #c07840;
+  padding: 2px 5px;
+  border-radius: 2px;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.sHotImg {
+  height: 28px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ===== 右侧 mod_box_t2 热门工具 ===== */
+.mod_box_t2 {
+  border: 1px solid #d0ad9a;
+  margin-bottom: 5px;
+}
+.mod_box_t2 .hd {
+  position: relative;
+  height: 33px;
+  line-height: 33px;
+  border-bottom: 1px solid #f2d2b5;
+  background-color: #fff7e8;
+}
+.mod_box_t2 .hd h3 {
+  color: #834b27;
+  font-size: 16px;
+  font-family: "微软雅黑", "黑体";
+  text-align: center;
+  border-bottom: 1px solid #f2d2b5;
+  padding-bottom: 0;
+}
+.mod_box_t2 .bd { padding: 6px; zoom: 1; }
+.mod_box_t2 .bd_s1 { background-color: #fffcf5; }
+
+/* 热门工具列表 — 三列 grid */
+.mod_txt {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 5px 2px;
+}
+.mod_txt li {
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  padding-left: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.mod_txt li a { color: #333; font-size: 14px; }
+.mod_txt li a:hover { color: #fd5151; text-decoration: none; }
+.mod_txt li a.current { color: #333; }
+.mod_txt li a font[color="red"] { color: #fd5151; }
+
+/* ===== 页脚 ===== */
+.footer {
+  width: 990px;
+  margin: 10px auto 0;
+  padding: 12px 0 30px;
+  color: #a2652b;
+  border-top: 3px solid #c0844d;
+  text-align: center;
+}
+.footer a { color: #a2652b; }
+.footer a:hover { color: #fd5151; }
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 Header ===== -->
+<div id="header">
+  <div id="logo">
+    <a href="https://www.kexuejisuanqi.com/" title="在线科学计算器">
+      <img src="logo (1).png" border="0" alt="科学计算器">
+    </a>
+  </div>
+</div>
+
+<!-- ===== 导航栏 ===== -->
+<div class="menu_xy">
+  <div class="menu_xy_inner">
+    <ul class="clearfix">
+      <li class="current"><a href="#"><span>首页</span></a></li>
+      <li><a href="#"><span>代数</span></a></li>
+      <li><a href="#"><span>图像</span></a></li>
+      <li><a href="#"><span>矩阵</span></a></li>
+      <li><a href="#"><span>数字</span></a></li>
+      <li><a href="#"><span>平面几何</span></a></li>
+      <li><a href="#"><span>立体几何</span></a></li>
+      <li><a href="#"><span>三角函数</span></a></li>
+      <li><a href="#"><span>解析几何</span></a></li>
+      <li><a href="#"><span>日期时间</span></a></li>
+      <li><a href="#"><span>颜色</span></a></li>
+      <li><a href="#"><span>进制</span></a></li>
+      <li><a href="#"><span>物理</span></a></li>
+      <li><a href="#"><span>电子电路</span></a></li>
+      <li><a href="#"><span>时间工具</span></a></li>
+      <li><a href="#"><span>健康时间</span></a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== 主体内容 ===== -->
+<div class="main">
+  <div class="cont">
+
+    <!-- 左栏 -->
+    <div class="col_left">
+      <div class="fn_part fn_sfz mod_box_t1">
+
+        <!-- 标题 -->
+        <div class="hd">
+          <h2>在线随机数生成器</h2>
+        </div>
+
+        <!-- 表单内容 -->
+        <div class="bd">
+          <div class="mod_box_t3 fn_box">
+            <div class="box_con">
+              <div class="mathmod_form">
+                确定产生随机数的数目，最小值和最大值：<br>
+                数目：&nbsp;&nbsp;<input type="text" id="randomCount" value="10" style="width:160px;"><br>
+                最小值：<input type="text" id="randomMinimum" value="0" style="width:120px;">
+                最大值：<input type="text" id="randomMaximum" value="100" style="width:120px;"><br>
+                选择是否为唯一随机数：<br>
+                选择：&nbsp;&nbsp;
+                <select id="randomType">
+                  <option value="unique" selected>唯一</option>
+                  <option value="open">随便</option>
+                </select><br>
+                点击生成产生随机数：<br>
+                <center><input type="button" id="randomGenerate" value="生成" onclick="generateNumbers()"></center>
+                得到你想要的随机数！<br>
+                <div id="randomNumbers">结果显示在这里！</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 介绍文字 -->
+          <div class="intro_area">
+            <p>产生随机数有多种不同的方法。这些方法被称为随机数发生器。随机数最重要的特性是它在产生是后面的那个数与前面的那个数毫无关系。随机数</p>
+            <p>真正的随机数是使用物理现象产生的：比如掷钱币、骰子、转轮、使用电子元件的噪音、核裂变等等。这样的随机数发生器叫做物理性随机数发生器，它们的缺点是技术要求比较高。</p>
+            <p>在实际应用中往往使用伪随机数就足够了。这些数列是"似乎"随机的数，实际上它们是通过一个固定的、可以重复的计算方法产生的。它们不真正地随机，因为它们实际上是可以计算出来的，但是它们具有类似于随机数的统计特征。这样的发生器叫做伪随机数发生器。</p>
+          </div>
+
+          <!-- 推荐区 -->
+          <div class="spreadHotWords">
+            <a href="https://www.kexuejisuanqi.com/">科学计算器</a>
+          </div>
+
+        </div><!-- /bd -->
+
+        <i class="flag_tl_t1"></i>
+        <i class="flag_tr_t1"></i>
+        <i class="flag_bl_t1"></i>
+        <i class="flag_br_t1"></i>
+      </div>
+    </div><!-- /col_left -->
+
+    <!-- 右栏 -->
+    <div id="col_right" class="col_right">
+      <div class="mod_box_t2 hot_tool_part nobor_bom">
+        <div class="hd hd_s1">
+          <h3>热门工具</h3>
+        </div>
+        <div class="bd bd_s1">
+          <ul class="mod_txt">
+            <li><a class="current" href="#">首页</a></li>
+            <li><a href="#"><font color="red">代数计算</font></a></li>
+            <li><a href="#">图像计算</a></li>
+            <li><a href="#">矩阵计算</a></li>
+            <li><a href="#">数字计算</a></li>
+            <li><a href="#"><font color="red">平面几何</font></a></li>
+            <li><a href="#">立体几何</a></li>
+            <li><a href="#"><font color="red">三角函数</font></a></li>
+            <li><a href="#">解析几何</a></li>
+            <li><a href="#">日期时间</a></li>
+            <li><a href="#">颜色计算</a></li>
+            <li><a href="#">进制计算</a></li>
+            <li><a href="#">物理计算</a></li>
+            <li><a href="#">电子电路</a></li>
+            <li><a href="#">Html工具</a></li>
+            <li><a href="#">健康计算</a></li>
+          </ul>
+        </div>
+      </div>
+    </div><!-- /col_right -->
+
+  </div><!-- /cont -->
+</div><!-- /main -->
+
+<!-- ===== 页脚 ===== -->
+<div class="footer">
+  <p>Copyright © 2000-2026 <a href="https://www.kexuejisuanqi.com/">科学计算器</a></p>
+</div>
+
+<script>
+// 本地随机（降级备用）
+function localGenerate(count, min, max, type) {
+  var results = [];
+  if (type === 'unique') {
+    if (count > (max - min + 1)) {
+      document.getElementById('randomNumbers').textContent =
+        '唯一模式下，数目不能超过范围内的整数个数（' + (max - min + 1) + '）！';
+      return;
+    }
+    var pool = [];
+    for (var i = min; i <= max; i++) pool.push(i);
+    for (var j = 0; j < count; j++) {
+      var idx = Math.floor(Math.random() * pool.length);
+      results.push(pool.splice(idx, 1)[0]);
+    }
+  } else {
+    for (var k = 0; k < count; k++)
+      results.push(Math.floor(Math.random() * (max - min + 1)) + min);
+  }
+  document.getElementById('randomNumbers').textContent = results.join(' ');
+}
+
+async function generateNumbers() {
+  var count = parseInt(document.getElementById('randomCount').value);
+  var min   = parseInt(document.getElementById('randomMinimum').value);
+  var max   = parseInt(document.getElementById('randomMaximum').value);
+  var type  = document.getElementById('randomType').value;
+
+  if (isNaN(count) || isNaN(min) || isNaN(max)) {
+    document.getElementById('randomNumbers').textContent = '请输入有效数字！'; return;
+  }
+  if (min > max) {
+    document.getElementById('randomNumbers').textContent = '最小值不能大于最大值！'; return;
+  }
+  if (count <= 0) {
+    document.getElementById('randomNumbers').textContent = '数目必须大于 0！'; return;
+  }
+
+  // 优先调用后端 API
+  try {
+    var resp = await fetch('/api/generate', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ count: count, min: min, max: max, type: type }),
+      signal:  AbortSignal.timeout(3000)   // 3 秒超时
+    });
+    if (!resp.ok) throw new Error('server error');
+    var data = await resp.json();
+    document.getElementById('randomNumbers').textContent = data.numbers.join(' ');
+  } catch (e) {
+    // 后端不可用时降级为本地随机
+    localGenerate(count, min, max, type);
+  }
+}
+</script>
+
+</body>
+</html>

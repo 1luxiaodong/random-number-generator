@@ -1,0 +1,12 @@
+run = "python server.py"
+entrypoint = "server.py"
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+FLASK_ENV = "production"
+
+[deployment]
+run = ["sh", "-c", "python server.py"]
+deploymentTarget = "cloudrun"
