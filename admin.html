@@ -311,12 +311,12 @@ function fillRandom() {
   });
 }
 
-function clearBoxes() {
+function clearBoxes(clearMsg = true) {
   for (let i = 0; i < currentCount; i++) {
     const el = document.getElementById('nb-' + i);
     if (el) el.value = '';
   }
-  document.getElementById('form-msg').textContent = '';
+  if (clearMsg) document.getElementById('form-msg').textContent = '';
 }
 
 // ── 保存预设 ─────────────────────────────────────────
@@ -345,8 +345,9 @@ async function addPreset() {
     if (r.status === 401) { location.href = '/admin/login'; return; }
     const d = await r.json();
     if (!r.ok) { showMsg(d.error || '保存失败', false); return; }
-    showMsg('预设已保存 ✓', true);
-    clearBoxes();
+    const savedNumbers = (d.numbers || numbers).join('、');
+    showMsg(`预设已保存 ✓ 数字：${savedNumbers}`, true);
+    clearBoxes(false);
     // 若列表是展开状态则刷新
     if (document.getElementById('preset-list').style.display !== 'none') {
       loadPresets();
